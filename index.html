@@ -281,6 +281,7 @@ let draft = null;
 let busy = false;
 let pending = null;   // {key, reqId}
 let lastText = '';
+let redirectT = null;
 
 function sanitize(s){
   const out = {boxes:[], risol:{}, uid:1};
@@ -534,7 +535,7 @@ function finishOrder(o){
   let h = '';
   if(o.saved === true) h += `<div class="note ok">Pesanan tersimpan<small>No. pesanan ${esc(o.id)}</small></div>`;
   else if(o.saved === false) h += `<div class="note warn">Pesanan belum tersimpan di sistem<small>Tenang, tetap kirim lewat WhatsApp ya.</small></div>`;
-  h += `<p style="margin:0 0 10px;font-size:14px;color:var(--brown2)">Satu langkah lagi: kirim pesanannya lewat WhatsApp supaya dikonfirmasi.</p>`;
+  h += `<p style="margin:0 0 10px;font-size:14px;color:var(--brown2)">Membuka WhatsApp otomatis… Kalau tidak terbuka, tekan tombol hijau di bawah, lalu kirim pesannya supaya pesananmu dikonfirmasi.</p>`;
   let n = 0, li = '';
   o.lines.forEach(l => { li += l.startsWith('   ') ? `<div style="font-size:13px;color:var(--brown2);padding-left:14px">${esc(l.trim())}</div>` : `<div style="font-weight:800;margin-top:6px">${++n}. ${esc(l)}</div>`; });
   h += `<div class="ci">${li}</div><div class="total"><span>Total</span><span>${rp(o.total)}</span></div>`;
@@ -543,6 +544,8 @@ function finishOrder(o){
   $('#dnWa').href = url;
   closeCart();
   $('#ovDone').classList.remove('hidden');
+  clearTimeout(redirectT);
+  redirectT = setTimeout(() => { location.assign(url); }, 900);
   state.boxes = []; state.risol = {}; pending = null;
   $('#fCatatan').value = '';
   refresh();
@@ -618,7 +621,7 @@ document.addEventListener('click', e => {
     case 'clear': if(confirm('Kosongkan semua pesanan?')){ state.boxes = []; state.risol = {}; refresh(); } break;
     case 'send': send(); break;
     case 'done-copy': copyText(lastText); break;
-    case 'done-close': $('#ovDone').classList.add('hidden'); break;
+    case 'done-close': clearTimeout(redirectT); $('#ovDone').classList.add('hidden'); break;
   }
 });
 ['#fNama','#fCatatan'].forEach(s => $(s).addEventListener('input', () => {
