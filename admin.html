@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin PO</title>
+<style>
+:root{--cream:#fff6ee;--card:#fff;--brown:#5a3a2e;--brown2:#8a6657;--pink:#f4b6c2;--pink2:#e98aa0;--pinkbg:#fde7ec;--line:#f0ddd0;--ok:#2b7a4f;--okbg:#e6f5ec;--warn:#8a5a00;--warnbg:#fff3dc;--bad:#b4382a;--badbg:#fde4e0;--blue:#2a5d9f;--bluebg:#e4eefb}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;touch-action:manipulation;-webkit-text-size-adjust:100%}
+body{font-family:"Nunito","Quicksand",ui-rounded,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--cream);color:var(--brown);line-height:1.4;padding-bottom:40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+h1{font-size:20px;font-weight:900;margin:0}
+.top{display:flex;align-items:center;gap:8px;padding:16px 0 10px}
+.top h1{flex:1}
+.ib{width:38px;height:38px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);font-size:17px;font-weight:900}
+.btn{background:var(--brown);color:#fff;border-radius:14px;padding:11px 16px;font-weight:800;font-size:15px}
+.btn.pink{background:var(--pink2)}
+.btn.ghost{background:var(--card);color:var(--brown);border:1.5px solid var(--line)}
+.btn.big{width:100%}
+.btn[disabled]{opacity:.5}
+input,select{width:100%;font-size:16px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;outline:none}
+input:focus,select:focus{border-color:var(--pink2)}
+label{display:block;font-size:13px;font-weight:800;margin:12px 2px 4px}
+.err{color:#c0392b;font-size:13px;font-weight:700;margin:8px 2px 0}
+
+/* login */
+.login{margin-top:12vh;background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:20px}
+.login p{margin:6px 0 14px;color:var(--brown2);font-size:14px}
+
+/* status */
+.state{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;font-size:13px;font-weight:800}
+.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:800}
+.p-Baru{background:var(--warnbg);color:var(--warn)}
+.p-Lunas{background:var(--bluebg);color:var(--blue)}
+.p-Selesai{background:var(--okbg);color:var(--ok)}
+.p-Batal{background:var(--badbg);color:var(--bad)}
+.p-buka{background:var(--okbg);color:var(--ok)}
+.p-tutup{background:var(--badbg);color:var(--bad)}
+
+/* tabs */
+.tabs{display:flex;gap:6px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:4px;margin:0 0 12px}
+.tabs button{flex:1;padding:9px 4px;border-radius:12px;font-weight:800;font-size:14px;color:var(--brown2)}
+.tabs button.on{background:var(--brown);color:#fff}
+
+/* filters */
+.filters{display:flex;gap:8px;margin:0 0 10px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px}
+.chips button{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:800}
+.chips button.on{background:var(--pink2);border-color:var(--pink2);color:#fff}
+
+/* order card */
+.oc{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
+.oc .h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.oc .h b{font-weight:900;word-break:break-word}
+.oc .h span{font-weight:800;color:var(--pink2);white-space:nowrap}
+.oc .w{font-size:12px;color:var(--brown2);margin:1px 0 6px}
+.oc .ln{font-size:13.5px;color:var(--brown2)}
+.oc .ln div.i{padding-left:14px;font-size:13px}
+.oc .ln div.m{font-weight:800;color:var(--brown);margin-top:3px}
+.oc .cat{margin-top:6px;font-size:13px;background:var(--pinkbg);border-radius:10px;padding:6px 10px;word-break:break-word}
+.oc .f{display:flex;gap:8px;align-items:center;margin-top:10px}
+.oc select{width:auto;flex:1;padding:8px 10px;font-weight:800}
+.empty{text-align:center;color:var(--brown2);padding:30px 0}
+
+/* rekap */
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.st{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.st small{display:block;font-size:12px;color:var(--brown2);font-weight:800}
+.st b{font-size:20px;font-weight:900}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 6px;font-weight:900}
+.tr{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px}
+.tr+.tr{border-top:1px solid var(--line)}
+.tr .q{font-weight:900}
+.tr small{color:var(--brown2);font-weight:700}
+.tr.sum{font-weight:900;border-top:1.5px solid var(--line)}
+
+/* settings */
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sw b{font-weight:900}
+.toggle{width:54px;height:30px;border-radius:999px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle.on{background:#25b567}
+.toggle.on::after{left:27px}
+.hint{font-size:12.5px;color:var(--brown2);margin:4px 2px 0}
+a.lnk{color:var(--blue);font-weight:800}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--brown);color:#fff;padding:9px 16px;border-radius:999px;font-weight:800;font-size:14px;z-index:50;max-width:90vw;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="login" class="login hidden">
+    <h1>Admin PO</h1>
+    <p>Masukkan PIN admin.</p>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN">
+    <div class="err hidden" id="loginErr"></div>
+    <div style="height:12px"></div>
+    <button class="btn pink big" id="btnLogin">Masuk</button>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="top">
+      <h1>Admin PO</h1>
+      <button class="ib" id="btnRefresh" aria-label="Muat ulang">↻</button>
+      <button class="ib" id="btnLogout" aria-label="Keluar">⎋</button>
+    </div>
+    <div class="state"><span id="stPeriode"></span><span class="pill" id="stOpen"></span></div>
+
+    <div class="tabs" id="tabs">
+      <button data-tab="orders" class="on">Pesanan</button>
+      <button data-tab="rekap">Rekap</button>
+      <button data-tab="set">Pengaturan</button>
+    </div>
+
+    <section id="tab-orders">
+      <div class="filters">
+        <select id="selPeriode" aria-label="Periode"></select>
+        <input id="search" placeholder="Cari nama" aria-label="Cari nama" style="max-width:150px">
+      </div>
+      <div class="chips" id="chips"></div>
+      <div id="orders"></div>
+    </section>
+
+    <section id="tab-rekap" class="hidden">
+      <div id="rekap"></div>
+    </section>
+
+    <section id="tab-set" class="hidden">
+      <div class="card">
+        <div class="sw"><div><b>PO dibuka</b><div class="hint" id="swHint"></div></div><button class="toggle" id="swOpen" role="switch" aria-label="PO dibuka"></button></div>
+      </div>
+      <div class="card">
+        <label for="sPeriode" style="margin-top:0">Nama periode</label>
+        <input id="sPeriode" maxlength="40">
+        <div class="hint">Ganti nama ini saat mulai PO baru. Kuota dihitung ulang dari nol.</div>
+        <label for="sTeks">Teks jam tutup (tampil di halaman)</label>
+        <input id="sTeks" maxlength="40" placeholder="Jumat 17.00">
+        <label for="sWaktu">Tutup otomatis (WIB)</label>
+        <input id="sWaktu" type="datetime-local">
+        <div class="hint">Kosongkan kalau tidak mau tutup otomatis.</div>
+        <div style="height:14px"></div>
+        <button class="btn pink big" id="btnSave">Simpan pengaturan</button>
+      </div>
+      <div class="card">
+        <h2>Menu, harga, kuota</h2>
+        <div class="hint" style="margin:0 0 8px">Diubah langsung di Google Sheet (sheet Rasa, Box, Risol). Perubahan tampil di halaman pelanggan setelah dimuat ulang.</div>
+        <a class="lnk" id="sheetLink" href="#" target="_blank" rel="noopener">Buka Google Sheet</a>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast hidden" id="toast"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxZtRY7EKFINjKxRVFKT_6bYgtjXDjEbsMLnd6fjbReE7agt4lx4Xl5g4xvMe-9vVh6bQ/exec';   // sama dengan di index.html
+const USE_API = /^https:\/\/script\.google\.com\//.test(API_URL);
+const STATUSES = ['Baru','Lunas','Selesai','Batal'];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp = n => 'Rp' + String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const fmtTime = iso => { try{ return new Date(iso).toLocaleString('id-ID',{timeZone:'Asia/Jakarta',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } };
+
+let pin = '';
+try{ pin = localStorage.getItem('po_pin') || ''; }catch(e){}
+let tab = 'orders', periode = '', periodes = [], current = '', orders = [], statusFilter = 'Semua', q = '';
+let settings = null;
+
+async function api(action, extra){
+  if(!USE_API) throw new Error('URL Apps Script belum diisi di admin.html');
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 20000);
+  try{
+    const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(Object.assign({action, pin}, extra || {})), signal:ctl.signal, redirect:'follow'});
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+let toastT;
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.remove('hidden'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hidden'), 2200); }
+
+/* ---- login ---- */
+function showLogin(msg){
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
+  const e = $('#loginErr'); e.textContent = msg || ''; e.classList.toggle('hidden', !msg);
+}
+async function login(){
+  const v = $('#pin').value.trim(); if(!v) return;
+  pin = v; const b = $('#btnLogin'); b.disabled = true; b.textContent = 'Memeriksa…';
+  try{
+    const r = await api('adminGetSettings');
+    if(!r.ok){ pin = ''; showLogin(r.error || 'Gagal masuk'); return; }
+    try{ localStorage.setItem('po_pin', pin); }catch(e){}
+    $('#pin').value = '';
+    start(r);
+  }catch(e){ pin = ''; showLogin(e.message || 'Tidak bisa terhubung. Coba lagi.'); }
+  finally{ b.disabled = false; b.textContent = 'Masuk'; }
+}
+function logout(){ pin = ''; try{ localStorage.removeItem('po_pin'); }catch(e){} showLogin(''); }
+
+function start(s){
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  applySettings(s); loadTab();
+}
+
+/* ---- pengaturan ---- */
+function applySettings(s){
+  settings = s;
+  $('#stPeriode').textContent = s.periode;
+  const o = $('#stOpen'); o.textContent = s.buka_efektif ? 'PO buka' : 'PO tutup'; o.className = 'pill ' + (s.buka_efektif ? 'p-buka' : 'p-tutup');
+  $('#swOpen').classList.toggle('on', !!s.po_buka);
+  $('#swOpen').setAttribute('aria-checked', s.po_buka ? 'true' : 'false');
+  $('#swHint').textContent = s.po_buka ? (s.buka_efektif ? 'Pelanggan bisa memesan' : 'Dicentang, tapi sudah lewat waktu tutup otomatis') : 'Pelanggan tidak bisa memesan';
+  $('#sPeriode').value = s.periode; $('#sTeks').value = s.tutup_teks;
+  $('#sWaktu').value = s.tutup_waktu ? s.tutup_waktu.replace(' ', 'T') : '';
+  if(s.sheetUrl) $('#sheetLink').href = s.sheetUrl;
+}
+async function saveSettings(patch, msg){
+  try{
+    const r = await api('adminSetSettings', {settings:patch});
+    if(!r.ok){ toast(r.error || 'Gagal menyimpan'); return false; }
+    applySettings(r); toast(msg || 'Tersimpan ✓'); return true;
+  }catch(e){ toast('Tidak bisa terhubung'); return false; }
+}
+
+/* ---- pesanan ---- */
+async function loadOrders(){
+  const r = await api('adminOrders', {periode});
+  if(!r.ok){ if(/PIN/i.test(r.error||'')) return logout(); toast(r.error); return; }
+  orders = r.orders; periodes = r.periodes; current = r.current; periode = r.periode;
+  const opts = [...new Set([...periodes])].map(p => `<option value="${esc(p)}">${esc(p)}${p === current ? ' (sekarang)' : ''}</option>`);
+  $('#selPeriode').innerHTML = opts.join('') + '<option value="ALL">Semua periode</option>';
+  $('#selPeriode').value = periode;
+  renderOrders();
+}
+function renderOrders(){
+  const counts = {Semua: orders.length}; STATUSES.forEach(s => counts[s] = orders.filter(o => o.status === s).length);
+  $('#chips').innerHTML = ['Semua', ...STATUSES].map(s => `<button data-st="${s}" class="${statusFilter === s ? 'on' : ''}">${s} ${counts[s]}</button>`).join('');
+  const needle = q.trim().toLowerCase();
+  const list = orders.filter(o => (statusFilter === 'Semua' || o.status === statusFilter) && (!needle || o.nama.toLowerCase().includes(needle) || o.id.toLowerCase().includes(needle)));
+  if(!list.length){ $('#orders').innerHTML = '<div class="empty">Belum ada pesanan</div>'; return; }
+  $('#orders').innerHTML = list.map(o => {
+    let n = 0;
+    const ln = o.lines.map(l => l.startsWith('   ') ? `<div class="i">${esc(l.trim())}</div>` : `<div class="m">${++n}. ${esc(l)}</div>`).join('');
+    return `<div class="oc">
+      <div class="h"><b>${esc(o.id)} · ${esc(o.nama)}</b><span>${rp(o.total)}</span></div>
+      <div class="w">${esc(fmtTime(o.waktu))}</div>
+      <div class="ln">${ln}</div>
+      ${o.catatan ? `<div class="cat">Catatan: ${esc(o.catatan)}</div>` : ''}
+      <div class="f"><span class="pill p-${esc(o.status)}">${esc(o.status)}</span>
+        <select data-id="${esc(o.id)}" aria-label="Ubah status ${esc(o.id)}">${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+    </div>`;
+  }).join('');
+}
+async function setStatus(id, st, sel){
+  const o = orders.find(x => x.id === id); if(!o) return;
+  const old = o.status; o.status = st; renderOrders();
+  try{
+    const r = await api('adminSetStatus', {id, status:st});
+    if(!r.ok){ o.status = old; renderOrders(); toast(r.error || 'Gagal mengubah status'); }
+    else toast(id + ' → ' + st);
+  }catch(e){ o.status = old; renderOrders(); toast('Tidak bisa terhubung'); }
+}
+
+/* ---- rekap ---- */
+let rekapText = '';
+async function loadRekap(){
+  const r = await api('adminRekap', {periode});
+  if(!r.ok){ if(/PIN/i.test(r.error||'')) return logout(); toast(r.error); return; }
+  const row = x => `<div class="tr"><span>${esc(x.name)}${x.kuota !== null && x.kuota !== undefined ? ` <small>kuota ${x.kuota}</small>` : ''}</span><span class="q">${x.qty}</span></div>`;
+  $('#rekap').innerHTML = `
+    <div class="stats">
+      <div class="st"><small>Pesanan</small><b>${r.pesanan}</b></div>
+      <div class="st"><small>Omzet</small><b>${rp(r.omzet)}</b></div>
+      <div class="st"><small>Sudah lunas</small><b>${rp(r.terbayar)}</b></div>
+      <div class="st"><small>Dibatalkan</small><b>${r.batal}</b></div>
+    </div>
+    <div class="card"><h2>Bomboloni yang harus dibuat</h2>${r.rasa.map(row).join('')}
+      <div class="tr sum"><span>Total bomboloni</span><span>${r.bombo} pcs</span></div></div>
+    <div class="card"><h2>Risol</h2>${r.risol.map(row).join('')}
+      <div class="tr sum"><span>Total risol</span><span>${r.risolTotal} pcs</span></div></div>
+    <button class="btn ghost big" id="btnCopyRekap">Salin rekap</button>`;
+  const L = [`Rekap ${r.periode === 'ALL' ? 'semua periode' : r.periode}`, `Pesanan: ${r.pesanan} · Omzet: ${rp(r.omzet)}`, '', 'Bomboloni:'];
+  r.rasa.filter(x => x.qty).forEach(x => L.push(`- ${x.name}: ${x.qty}`)); L.push(`Total: ${r.bombo} pcs`, '', 'Risol:');
+  r.risol.filter(x => x.qty).forEach(x => L.push(`- ${x.name}: ${x.qty}`)); L.push(`Total: ${r.risolTotal} pcs`);
+  rekapText = L.join('\n');
+}
+
+/* ---- tab ---- */
+async function loadTab(){
+  try{
+    if(tab === 'orders') await loadOrders();
+    else if(tab === 'rekap') await loadRekap();
+  }catch(e){ toast('Tidak bisa terhubung'); }
+}
+function setTab(t){
+  tab = t;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  ['orders','rekap','set'].forEach(k => $('#tab-' + k).classList.toggle('hidden', k !== t));
+  loadTab();
+}
+
+/* ---- events ---- */
+$('#btnLogin').addEventListener('click', login);
+$('#pin').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+$('#btnLogout').addEventListener('click', logout);
+$('#btnRefresh').addEventListener('click', async () => {
+  try{ const s = await api('adminGetSettings'); if(s.ok) applySettings(s); }catch(e){}
+  loadTab();
+});
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
+$('#selPeriode').addEventListener('change', e => { periode = e.target.value; loadTab(); });
+$('#search').addEventListener('input', e => { q = e.target.value; renderOrders(); });
+$('#chips').addEventListener('click', e => { const b = e.target.closest('button[data-st]'); if(b){ statusFilter = b.dataset.st; renderOrders(); } });
+$('#orders').addEventListener('change', e => { const s = e.target.closest('select[data-id]'); if(s) setStatus(s.dataset.id, s.value, s); });
+$('#rekap').addEventListener('click', async e => {
+  if(e.target.id !== 'btnCopyRekap') return;
+  try{ await navigator.clipboard.writeText(rekapText); toast('Rekap disalin ✓'); }catch(_){ toast('Gagal menyalin'); }
+});
+$('#swOpen').addEventListener('click', () => { if(settings) saveSettings({po_buka: !settings.po_buka}, !settings.po_buka ? 'PO dibuka' : 'PO ditutup'); });
+$('#btnSave').addEventListener('click', async () => {
+  const w = $('#sWaktu').value.replace('T', ' ');
+  const b = $('#btnSave'); b.disabled = true;
+  await saveSettings({periode:$('#sPeriode').value, tutup_teks:$('#sTeks').value, tutup_waktu:w});
+  b.disabled = false;
+});
+setInterval(() => { if(!document.hidden && pin && !$('#app').classList.contains('hidden') && tab !== 'set') loadTab(); }, 60000);
+
+/* ---- init ---- */
+(async function init(){
+  if(!USE_API){ showLogin('URL Apps Script belum diisi di admin.html'); return; }
+  if(!pin){ showLogin(''); return; }
+  try{
+    const r = await api('adminGetSettings');
+    if(r.ok) start(r); else { pin = ''; try{ localStorage.removeItem('po_pin'); }catch(e){} showLogin(r.error || ''); }
+  }catch(e){ showLogin('Tidak bisa terhubung. Coba lagi.'); }
+})();
+</script>
+</body>
+</html>
