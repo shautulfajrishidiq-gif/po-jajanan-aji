@@ -316,16 +316,26 @@ async function loadRekap(){
 /* ---- semua PO (tanpa harga) ---- */
 let allTexts = [], openPO = null;
 function poText(p){
-  const L = [`Rekap ${p.periode}`, `${p.pesanan} pesanan · ${p.bombo} bomboloni · ${p.risolTotal} risol`, ''];
-  if(p.rasa.length){ L.push('Bomboloni:'); p.rasa.forEach(x => L.push(`- ${x.name}: ${x.qty}`)); L.push(''); }
-  if(p.risol.length){ L.push('Risol:'); p.risol.forEach(x => L.push(`- ${x.name}: ${x.qty}`)); L.push(''); }
+  const strip = n => String(n).replace(/^risol\s+/i, '');
+  const L = [`*REKAP ${p.periode}*`, `${p.pesanan} pesanan`, ''];
+  if(p.rasa.length){ L.push(`*🍩 BOMBOLONI (${p.bombo} pcs)*`); p.rasa.forEach(x => L.push(`• ${x.name} – ${x.qty}`)); L.push(''); }
+  if(p.risol.length){ L.push(`*🥟 RISOL (${p.risolTotal} pcs)*`); p.risol.forEach(x => L.push(`• ${strip(x.name)} – ${x.qty}`)); L.push(''); }
   if(p.orders.length){
-    L.push('Per pesanan:');
-    p.orders.slice().reverse().forEach(o => {
-      const items = [];
-      o.boxes.forEach(b => items.push(`${b.name} (${b.fl.map(f => f.name + ' ' + f.qty).join(', ')})`));
-      o.risol.forEach(r => items.push(`${r.name} ${r.qty}`));
-      L.push(`${o.id} ${o.nama}: ${items.join('; ')}${o.catatan ? ' | Catatan: ' + o.catatan : ''}`);
+    L.push('*📦 PER PESANAN*');
+    p.orders.slice().reverse().forEach((o, i) => {
+      L.push(`${i + 1}. *${o.nama}* (${o.id})`);
+      // box "Satuan" digabung jadi satu baris; box lain tetap per box
+      const sat = {}, satOrder = [];
+      o.boxes.forEach(b => {
+        if(/^satuan/i.test(b.name)){
+          if(!sat[b.name]){ sat[b.name] = {}; satOrder.push(b.name); }
+          b.fl.forEach(f => { sat[b.name][f.name] = (sat[b.name][f.name] || 0) + f.qty; });
+        } else L.push(`   ${b.name}: ${b.fl.map(f => f.name + ' ' + f.qty).join(', ')}`);
+      });
+      satOrder.forEach(n => L.push(`   ${n}: ${Object.keys(sat[n]).map(k => k + ' ' + sat[n][k]).join(', ')}`));
+      if(o.risol.length) L.push(`   Risol ${o.risol.map(r => strip(r.name) + ' ' + r.qty).join(', ')}`);
+      if(o.catatan) L.push(`   ⚠️ ${o.catatan}`);
+      L.push('');
     });
   }
   return L.join('\n').trim();
