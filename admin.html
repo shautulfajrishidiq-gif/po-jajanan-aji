@@ -44,7 +44,7 @@ label{display:block;font-size:13px;font-weight:800;margin:12px 2px 4px}
 
 /* tabs */
 .tabs{display:flex;gap:6px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:4px;margin:0 0 12px}
-.tabs button{flex:1;padding:9px 4px;border-radius:12px;font-weight:800;font-size:14px;color:var(--brown2)}
+.tabs button{flex:1;padding:9px 2px;border-radius:12px;font-weight:800;font-size:13px;color:var(--brown2);white-space:nowrap}
 .tabs button.on{background:var(--brown);color:#fff}
 
 /* filters */
@@ -79,6 +79,23 @@ label{display:block;font-size:13px;font-weight:800;margin:12px 2px 4px}
 .tr .q{font-weight:900}
 .tr small{color:var(--brown2);font-weight:700}
 .tr.sum{font-weight:900;border-top:1.5px solid var(--line)}
+
+/* semua PO */
+details.po{background:var(--card);border:1.5px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+details.po>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:8px}
+details.po>summary::-webkit-details-marker{display:none}
+details.po>summary .t{flex:1;min-width:0}
+details.po>summary b{font-weight:900;font-size:15px;display:block;word-break:break-word}
+details.po>summary small{color:var(--brown2);font-weight:700;font-size:12px}
+details.po>summary::after{content:"›";font-size:20px;font-weight:900;color:var(--brown2);transition:transform .15s}
+details.po[open]>summary::after{transform:rotate(90deg)}
+.po .bd{padding:0 14px 14px}
+.po h3{font-size:13px;font-weight:900;margin:10px 0 2px}
+.po .oi{padding:7px 0;font-size:13.5px}
+.po .oi+.oi{border-top:1px solid var(--line)}
+.po .oi .ln2{color:var(--brown2);font-size:12.5px}
+.po .oi .cat{margin-top:4px;font-size:12.5px;background:var(--pinkbg);border-radius:10px;padding:5px 9px;word-break:break-word}
+.pill.cur{background:var(--okbg);color:var(--ok)}
 
 /* settings */
 .sw{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -115,7 +132,8 @@ a.lnk{color:var(--blue);font-weight:800}
     <div class="tabs" id="tabs">
       <button data-tab="orders" class="on">Pesanan</button>
       <button data-tab="rekap">Rekap</button>
-      <button data-tab="set">Pengaturan</button>
+      <button data-tab="all">Semua PO</button>
+      <button data-tab="set">Atur</button>
     </div>
 
     <section id="tab-orders">
@@ -129,6 +147,10 @@ a.lnk{color:var(--blue);font-weight:800}
 
     <section id="tab-rekap" class="hidden">
       <div id="rekap"></div>
+    </section>
+
+    <section id="tab-all" class="hidden">
+      <div id="allpo"></div>
     </section>
 
     <section id="tab-set" class="hidden">
@@ -291,17 +313,61 @@ async function loadRekap(){
   rekapText = L.join('\n');
 }
 
+/* ---- semua PO (tanpa harga) ---- */
+let allTexts = [], openPO = null;
+function poText(p){
+  const L = [`Rekap ${p.periode}`, `${p.pesanan} pesanan · ${p.bombo} bomboloni · ${p.risolTotal} risol`, ''];
+  if(p.rasa.length){ L.push('Bomboloni:'); p.rasa.forEach(x => L.push(`- ${x.name}: ${x.qty}`)); L.push(''); }
+  if(p.risol.length){ L.push('Risol:'); p.risol.forEach(x => L.push(`- ${x.name}: ${x.qty}`)); L.push(''); }
+  if(p.orders.length){
+    L.push('Per pesanan:');
+    p.orders.slice().reverse().forEach(o => {
+      const items = [];
+      o.boxes.forEach(b => items.push(`${b.name} (${b.fl.map(f => f.name + ' ' + f.qty).join(', ')})`));
+      o.risol.forEach(r => items.push(`${r.name} ${r.qty}`));
+      L.push(`${o.id} ${o.nama}: ${items.join('; ')}${o.catatan ? ' | Catatan: ' + o.catatan : ''}`);
+    });
+  }
+  return L.join('\n').trim();
+}
+function orderHtml(o){
+  const bx = o.boxes.map(b => `<div class="ln2"><b>${esc(b.name)}</b>: ${b.fl.map(f => esc(f.name) + ' ' + f.qty).join(', ')}</div>`).join('');
+  const rs = o.risol.length ? `<div class="ln2">${o.risol.map(r => esc(r.name) + ' ' + r.qty).join(', ')}</div>` : '';
+  return `<div class="oi"><b>${esc(o.id)} · ${esc(o.nama)}</b>${bx}${rs}${o.catatan ? `<div class="cat">Catatan: ${esc(o.catatan)}</div>` : ''}</div>`;
+}
+async function loadAll(){
+  const r = await api('adminRekapSemua');
+  if(!r.ok){ if(/PIN/i.test(r.error||'')) return logout(); toast(r.error); return; }
+  if(openPO === null) openPO = new Set(r.pos.length ? [r.pos[0].periode] : []);
+  allTexts = r.pos.map(poText);
+  const row = x => `<div class="tr"><span>${esc(x.name)}</span><span class="q">${x.qty}</span></div>`;
+  $('#allpo').innerHTML = r.pos.length ? r.pos.map((p, i) => `
+    <details class="po" data-p="${esc(p.periode)}" ${openPO.has(p.periode) ? 'open' : ''}>
+      <summary><div class="t"><b>${esc(p.periode)} ${p.sekarang ? '<span class="pill cur">Sekarang</span>' : ''}</b>
+        <small>${p.pesanan} pesanan · ${p.bombo} bomboloni · ${p.risolTotal} risol</small></div></summary>
+      <div class="bd">
+        ${p.pesanan ? `
+        <h3>Bomboloni</h3>${p.rasa.length ? p.rasa.map(row).join('') : '<div class="hint">Tidak ada</div>'}
+        <h3>Risol</h3>${p.risol.length ? p.risol.map(row).join('') : '<div class="hint">Tidak ada</div>'}
+        <h3>Rincian per pesanan</h3>${p.orders.map(orderHtml).join('')}
+        <div style="height:10px"></div>
+        <button class="btn ghost big" data-copy="${i}">Salin rekap PO ini</button>` : '<div class="empty" style="padding:14px 0">Belum ada pesanan</div>'}
+      </div>
+    </details>`).join('') : '<div class="empty">Belum ada PO</div>';
+}
+
 /* ---- tab ---- */
 async function loadTab(){
   try{
     if(tab === 'orders') await loadOrders();
     else if(tab === 'rekap') await loadRekap();
+    else if(tab === 'all') await loadAll();
   }catch(e){ toast('Tidak bisa terhubung'); }
 }
 function setTab(t){
   tab = t;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  ['orders','rekap','set'].forEach(k => $('#tab-' + k).classList.toggle('hidden', k !== t));
+  ['orders','rekap','all','set'].forEach(k => $('#tab-' + k).classList.toggle('hidden', k !== t));
   loadTab();
 }
 
@@ -321,6 +387,14 @@ $('#orders').addEventListener('change', e => { const s = e.target.closest('selec
 $('#rekap').addEventListener('click', async e => {
   if(e.target.id !== 'btnCopyRekap') return;
   try{ await navigator.clipboard.writeText(rekapText); toast('Rekap disalin ✓'); }catch(_){ toast('Gagal menyalin'); }
+});
+$('#allpo').addEventListener('toggle', e => {
+  const d = e.target; if(!d.matches || !d.matches('details.po') || openPO === null) return;
+  if(d.open) openPO.add(d.dataset.p); else openPO.delete(d.dataset.p);
+}, true);
+$('#allpo').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-copy]'); if(!b) return;
+  try{ await navigator.clipboard.writeText(allTexts[Number(b.dataset.copy)]); toast('Rekap disalin ✓'); }catch(_){ toast('Gagal menyalin'); }
 });
 $('#swOpen').addEventListener('click', () => { if(settings) saveSettings({po_buka: !settings.po_buka}, !settings.po_buka ? 'PO dibuka' : 'PO ditutup'); });
 $('#btnSave').addEventListener('click', async () => {
